@@ -22,6 +22,7 @@ const corsOptions = {
     optionsSuccessStatus: 204,
     allowedHeaders: 'Origin,X-Requested-With,Content-Type,Accept,Authorization'
 };
+const PORT = 3001;
 
 app.use(cors(corsOptions));
 app.use(express.json());
@@ -181,9 +182,8 @@ app.post('/', async (req, res) => {
 });
 
 db.sequelize.sync().then(() => {
-    app.listen(3001, () => {
-        console.log("Server is running on port 3001");
+    app.listen(process.env.PORT || PORT, () => {
+        console.log(`Server is running on port ${PORT}`);
     });
 });
 
-// process.env.PORT || PORT
