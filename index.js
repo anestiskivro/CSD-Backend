@@ -29,11 +29,11 @@ app.use(cors(corsOptions));
 app.use(express.json());
 app.use(cookieParser());
 app.use(session({
-    secret: 'This is a secret key for the site',
+    secret: process.env.SESSION_SECRET || 'default_secret_key',
     resave: false,
     saveUninitialized: false,
     cookie: {
-        secure: false,
+        secure: process.env.NODE_ENV === 'production',
         maxAge: 15000 * 60 * 60 * 24
     }
 }));
@@ -50,90 +50,92 @@ app.use("/tassistant", t_assistant_router);
 app.post('/logout', (req, res) => {
     if (req.session) {
         req.session.destroy((err) => {
-        if (err) {
-            console.error('Error destroying session:', err);
-            res.status(500).json({ error: 'An error occurred while logging out.' });
-        } else {
-            res.clearCookie('connect.sid');
-            res.status(200).json({ message: 'Logout successful' });
-        }
+            if (err) {
+                console.error('Error destroying session:', err);
+                res.status(500).json({ error: 'An error occurred while logging out.' });
+            } else {
+                res.clearCookie('connect.sid');
+                res.status(200).json({ message: 'Logout successful' });
+            }
         });
     } else {
         res.status(401).json({ message: 'You are not logged in' });
     }
 });
 
-app.post('/admin/insertcourses',upload.single('file'), async (req, res) => {
+app.post('/admin/insertcourses', upload.single('file'), async (req, res) => {
     try {
-    const filePath = req.file.path;
-    console.log('Uploaded file path:', filePath);
-    if (!req.file) {
-        return res.status(400).json({ error: 'No file uploaded' });
-    }
-    xlsToJson({
-        input: filePath,
-        output: null,
-        headers: true
-    }, async (error, result) => {
-        if (error) {
-            console.error('Error:', error);
-            res.status(500).json({ error: 'An error occurred while parsing the Excel file' });
-        } else {
-            console.log('Result:', result);
-            const headers = Object.keys(result[0]);
-            for (const row of result) {
-                const values = headers.map(header => row[header]);
-                await db.sequelize.query(
-                'INSERT INTO courses (department, code, title,instructor,ects,type) VALUES (?, ?, ?,?,?,?)',
-                {
-                    replacements: values,
-                    type: db.sequelize.QueryTypes.INSERT
+        const filePath = req.file.path;
+        console.log('Uploaded file path:', filePath);
+        if (!req.file) {
+            return res.status(400).json({ error: 'No file uploaded' });
+        }
+        xlsToJson({
+            input: filePath,
+            output: null,
+            headers: true
+        }, async (error, result) => {
+            if (error) {
+                console.error('Error:', error);
+                res.status(500).json({ error: 'An error occurred while parsing the Excel file' });
+            } else {
+                console.log('Result:', result);
+                const headers = Object.keys(result[0]);
+                for (const row of result) {
+                    const values = headers.map(header => row[header]);
+                    await db.sequelize.query(
+                        'INSERT INTO courses (department, code, title,instructor,ects,type) VALUES (?, ?, ?,?,?,?)',
+                        {
+                            replacements: values,
+                            type: db.sequelize.QueryTypes.INSERT
+                        }
+                    );
                 }
-            );
+                res.status(200).json({ message: 'Data imported successfully' });
             }
-            res.status(200).json({ message: 'Data imported successfully' });
-            }
-    });
-}catch (error) {
-    console.error('Error:', error);
-    res.status(500).json({ error: 'An error occurred while importing data' });
-}});
+        });
+    } catch (error) {
+        console.error('Error:', error);
+        res.status(500).json({ error: 'An error occurred while importing data' });
+    }
+});
 
-app.post('/admin',upload.single('file'), async (req, res) => {
+app.post('/admin', upload.single('file'), async (req, res) => {
     try {
-    const filePath = req.file.path;
-    console.log('Uploaded file path:', filePath);
-    if (!req.file) {
-        return res.status(400).json({ error: 'No file uploaded' });
-    }
-    xlsToJson({
-        input: filePath,
-        output: null,
-        headers: true
-    }, async (error, result) => {
-        if (error) {
-            console.error('Error:', error);
-            res.status(500).json({ error: 'An error occurred while parsing the Excel file' });
-        } else {
-            console.log('Result:', result);
-            const headers = Object.keys(result[0]);
-            for (const row of result) {
-                const values = headers.map(header => row[header]);
-                await db.sequelize.query(
-                'INSERT INTO teachers (lastname, name, email) VALUES (?, ?, ?)',
-                {
-                    replacements: values,
-                    type: db.sequelize.QueryTypes.INSERT
+        const filePath = req.file.path;
+        console.log('Uploaded file path:', filePath);
+        if (!req.file) {
+            return res.status(400).json({ error: 'No file uploaded' });
+        }
+        xlsToJson({
+            input: filePath,
+            output: null,
+            headers: true
+        }, async (error, result) => {
+            if (error) {
+                console.error('Error:', error);
+                res.status(500).json({ error: 'An error occurred while parsing the Excel file' });
+            } else {
+                console.log('Result:', result);
+                const headers = Object.keys(result[0]);
+                for (const row of result) {
+                    const values = headers.map(header => row[header]);
+                    await db.sequelize.query(
+                        'INSERT INTO teachers (lastname, name, email) VALUES (?, ?, ?)',
+                        {
+                            replacements: values,
+                            type: db.sequelize.QueryTypes.INSERT
+                        }
+                    );
                 }
-            );
+                res.status(200).json({ message: 'Data imported successfully' });
             }
-            res.status(200).json({ message: 'Data imported successfully' });
-            }
-    });
-}catch (error) {
-    console.error('Error:', error);
-    res.status(500).json({ error: 'An error occurred while importing data' });
-}});
+        });
+    } catch (error) {
+        console.error('Error:', error);
+        res.status(500).json({ error: 'An error occurred while importing data' });
+    }
+});
 
 app.get('/', async (req, res) => {
     if (req.session.email) {
@@ -147,23 +149,23 @@ app.post('/', async (req, res) => {
     const email = req.body.email;
     let user;
     try {
-        if(email.includes("admin")){
+        if (email.includes("admin")) {
             req.session.email = email;
             res.status(200).json({ email: email });
             return;
         }
-        else if(email.includes("csdp")){
+        else if (email.includes("csdp")) {
             user = await db.sequelize.query('SELECT email FROM teachingassistants WHERE email = :email', {
                 type: QueryTypes.SELECT,
                 replacements: { email: email }
             });
         }
-        else if(email.includes("csd")){
+        else if (email.includes("csd")) {
             user = await db.sequelize.query('SELECT email FROM students WHERE email = :email', {
                 type: QueryTypes.SELECT,
                 replacements: { email: email }
             });
-        }else {
+        } else {
             user = await db.sequelize.query('SELECT email FROM teachers WHERE email = :email', {
                 type: QueryTypes.SELECT,
                 replacements: { email: email }
