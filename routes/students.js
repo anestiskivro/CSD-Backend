@@ -257,8 +257,7 @@ router.post("/book", async (req, res) => {
                     });
                 });
                 const conf_date = new Date(date);
-                const oneday = 24 * 60 * 60 * 1000;
-                const dateOneDayBefore = new Date(conf_date.getTime() - oneday);
+                const dateOneDayBefore = new Date(conf_date.getTime());
                 const job = schedule.scheduleJob(dateOneDayBefore, function () {
                     transporter.sendMail(mailOptionsRemind, (error, info) => {
                         if (error) {
