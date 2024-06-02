@@ -8,6 +8,7 @@ const cookieParser = require('cookie-parser');
 const session = require('express-session');
 const app = express();
 const db = require("./models");
+require("dotenv").config();
 db.Courses.sync()
 db.Students.sync()
 db.TeachingAssistant.sync()
@@ -182,7 +183,7 @@ app.post('/', async (req, res) => {
 });
 
 db.sequelize.sync().then(() => {
-    app.listen(process.env.PORT || PORT, () => {
+    app.listen(process.env.PORT || 3001, () => {
         console.log(`Server is running on port ${PORT}`);
     });
 });
