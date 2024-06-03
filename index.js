@@ -9,12 +9,6 @@ const session = require('express-session');
 const app = express();
 const db = require("./models");
 require("dotenv").config();
-db.Courses.sync()
-db.Students.sync()
-db.TeachingAssistant.sync()
-db.Exams.sync()
-db.AvailableSlots.sync()
-db.Appointment.sync()
 
 const allowedOrigins = [
     'https://main--rendezvous-csd.netlify.app',
@@ -34,6 +28,19 @@ const corsOptions = {
     optionsSuccessStatus: 204,
     allowedHeaders: 'Origin,X-Requested-With,Content-Type,Accept,Authorization'
 };
+
+app.use(cors(corsOptions));
+app.use(express.json());
+app.use(cookieParser());
+app.use(session({
+    secret: process.env.SESSION_SECRET || 'default_secret_key',
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+        secure: process.env.NODE_ENV === 'production',
+        maxAge: 15000 * 60 * 60 * 24
+    }
+}));
 
 app.use(cors(corsOptions));
 app.use(express.json());
