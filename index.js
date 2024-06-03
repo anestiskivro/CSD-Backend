@@ -28,7 +28,7 @@ const corsOptions = {
     optionsSuccessStatus: 204,
     allowedHeaders: 'Origin,X-Requested-With,Content-Type,Accept,Authorization'
 };
-
+const PORT = 3001;
 app.use(cors(corsOptions));
 app.use(express.json());
 app.use(cookieParser());
