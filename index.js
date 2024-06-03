@@ -12,7 +12,7 @@ require("dotenv").config();
 
 const allowedOrigins = [
     'https://main--rendezvous-csd.netlify.app',
-    'https://665d9711f499d148fc237e7f--rendezvous-csd.netlify.app'
+    'https://rendezvous-csd.netlify.app'
 ];
 
 const corsOptions = {
