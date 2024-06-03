@@ -42,19 +42,6 @@ app.use(session({
     }
 }));
 
-app.use(cors(corsOptions));
-app.use(express.json());
-app.use(cookieParser());
-app.use(session({
-    secret: process.env.SESSION_SECRET || 'default_secret_key',
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-        secure: process.env.NODE_ENV === 'production',
-        maxAge: 15000 * 60 * 60 * 24
-    }
-}));
-
 
 const students_router = require("./routes/students");
 app.use("/student", students_router);
