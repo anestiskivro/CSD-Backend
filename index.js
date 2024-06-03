@@ -17,7 +17,7 @@ db.AvailableSlots.sync()
 db.Appointment.sync()
 
 const corsOptions = {
-    origin: 'https://rendezvous-csd-106ea9dcba7a.herokuapp.com',
+    origin: 'https://main--rendezvous-csd.netlify.app',
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
     optionsSuccessStatus: 204,
