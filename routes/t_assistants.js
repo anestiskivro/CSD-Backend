@@ -5,8 +5,19 @@ const db = require("../models")
 const multer = require('multer');
 const upload = multer({ dest: 'uploads/' });
 
+const allowedOrigins = [
+    'https://main--rendezvous-csd.netlify.app',
+    'https://rendezvous-csd.netlify.app'
+];
+
 const corsOptions = {
-    origin: 'https://rendezvous-csd-106ea9dcba7a.herokuapp.com',
+    origin: function (origin, callback) {
+        if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
     optionsSuccessStatus: 204,
