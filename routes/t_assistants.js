@@ -6,7 +6,7 @@ const multer = require('multer');
 const upload = multer({ dest: 'uploads/' });
 
 const corsOptions = {
-    origin: 'http://localhost:3000',
+    origin: 'https://rendezvous-csd-106ea9dcba7a.herokuapp.com',
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
     optionsSuccessStatus: 204,
