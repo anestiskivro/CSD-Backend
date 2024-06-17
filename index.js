@@ -156,34 +156,23 @@ app.get('/', async (req, res) => {
 
 app.post('/', async (req, res) => {
     const email = req.body.email;
-    let user;
+    let userStud, userTA, userTeach;
     try {
         if (email.includes("admin")) {
             req.session.email = email;
             res.status(200).json({ email: email });
             return;
         }
-        else if (email.includes("csdp")) {
-            user = await db.sequelize.query('SELECT email FROM teachingassistants WHERE email = :email', {
-                type: QueryTypes.SELECT,
-                replacements: { email: email }
-            });
+        userStud = await TeachingAssistant.findOne({ where: { email: email } });
+        userTA = await Student.findOne({ where: { email: email } });
+        userTeach = await Teacher.findOne({ where: { email: email } });
+        if (userTeach && userTeach.length > 0) {
+            res.status(200).json({ id: "teacher", email: userTeach[0].email });
+        } else if (userTA && userTA.length > 0) {
+            res.status(200).json({ id: "TA", email: userTA[0].email });
         }
-        else if (email.includes("csd")) {
-            user = await db.sequelize.query('SELECT email FROM students WHERE email = :email', {
-                type: QueryTypes.SELECT,
-                replacements: { email: email }
-            });
-        } else {
-            user = await db.sequelize.query('SELECT email FROM teachers WHERE email = :email', {
-                type: QueryTypes.SELECT,
-                replacements: { email: email }
-            });
-        }
-        if (user && user.length > 0) {
-            req.session.email = user[0].email;
-            console.log(req.session.email);
-            res.status(200).json({ email: req.session.email });
+        else if (userStud && userStud.length > 0) {
+            res.status(200).json({ id: "student", email: userStud[0].email });
         } else {
             res.status(401).json({ loggedIn: false });
         }
