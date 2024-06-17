@@ -7,26 +7,26 @@ const Students = db.Students;
 const multer = require('multer');
 const upload = multer({ dest: 'uploads/' });
 
-const allowedOrigins = [
-    'https://main--rendezvous-csd.netlify.app',
-    'https://rendezvous-csd.netlify.app'
-];
+// const allowedOrigins = [
+//     'https://main--rendezvous-csd.netlify.app',
+//     'https://rendezvous-csd.netlify.app'
+// ];
 
-const corsOptions = {
-    origin: function (origin, callback) {
-        if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
-            callback(null, true);
-        } else {
-            callback(new Error('Not allowed by CORS'));
-        }
-    },
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-    credentials: true,
-    optionsSuccessStatus: 204,
-    allowedHeaders: 'Origin,X-Requested-With,Content-Type,Accept,Authorization'
-};
+// const corsOptions = {
+//     origin: function (origin, callback) {
+//         if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
+//             callback(null, true);
+//         } else {
+//             callback(new Error('Not allowed by CORS'));
+//         }
+//     },
+//     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+//     credentials: true,
+//     optionsSuccessStatus: 204,
+//     allowedHeaders: 'Origin,X-Requested-With,Content-Type,Accept,Authorization'
+// };
 
-router.use(cors(corsOptions));
+// router.use(cors(corsOptions));
 const bodyParser = require('body-parser');
 router.use(bodyParser.urlencoded({ extended: true }));
 

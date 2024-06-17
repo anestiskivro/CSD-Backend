@@ -7,25 +7,25 @@ const multer = require('multer');
 const upload = multer({ dest: 'uploads/' });
 const schedule = require('node-schedule');
 
-const allowedOrigins = [
-    'https://main--rendezvous-csd.netlify.app',
-    'https://rendezvous-csd.netlify.app'
-];
+// const allowedOrigins = [
+//     'https://main--rendezvous-csd.netlify.app',
+//     'https://rendezvous-csd.netlify.app'
+// ];
 
-const corsOptions = {
-    origin: function (origin, callback) {
-        if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
-            callback(null, true);
-        } else {
-            callback(new Error('Not allowed by CORS'));
-        }
-    },
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-    credentials: true,
-    optionsSuccessStatus: 204,
-    allowedHeaders: 'Origin,X-Requested-With,Content-Type,Accept,Authorization'
-};
-router.use(cors(corsOptions));
+// const corsOptions = {
+//     origin: function (origin, callback) {
+//         if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
+//             callback(null, true);
+//         } else {
+//             callback(new Error('Not allowed by CORS'));
+//         }
+//     },
+//     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+//     credentials: true,
+//     optionsSuccessStatus: 204,
+//     allowedHeaders: 'Origin,X-Requested-With,Content-Type,Accept,Authorization'
+// };
+// router.use(cors(corsOptions));
 const transporter = nodemailer.createTransport({
     port: 465,
     host: "smtp.gmail.com",
