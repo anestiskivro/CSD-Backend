@@ -8,6 +8,9 @@ const cookieParser = require('cookie-parser');
 const session = require('express-session');
 const app = express();
 const db = require("./models");
+const Students = db.Students;
+const TeachingAssistants = db.TeachingAssistant;
+const Teachers = db.Teachers;
 require("dotenv").config();
 
 const allowedOrigins = [
@@ -163,9 +166,9 @@ app.post('/', async (req, res) => {
             res.status(200).json({ email: email });
             return;
         }
-        userStud = await db.TeachingAssistant.findOne({ where: { email: email } });
-        userTA = await db.Student.findOne({ where: { email: email } });
-        userTeach = await db.Teacher.findOne({ where: { email: email } });
+        userStud = await TeachingAssistants.findOne({ where: { email: email } });
+        userTA = await Students.findOne({ where: { email: email } });
+        userTeach = await Teachers.findOne({ where: { email: email } });
         if (userTeach && userTeach.length > 0) {
             res.status(200).json({ id: "teacher", email: userTeach[0].email });
         } else if (userTA && userTA.length > 0) {
