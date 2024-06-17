@@ -26,7 +26,8 @@ const corsOptions = {
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
     optionsSuccessStatus: 204,
-    allowedHeaders: 'Origin,X-Requested-With,Content-Type,Accept,Authorization,X-Custom-Header'
+    allowedHeaders:
+    'Origin,X-Requested-With,Content-Type,Accept,Authorization,X-Custom-Header,Access-Control-Allow-Origin,Access-Control-Allow-Methods,Access-Control-Allow-Credentials'
 };
 const PORT = process.env.PORT || 3001;
 const SESSION_SECRET = process.env.SESSION_SECRET || 'default_secret_key';
