@@ -28,12 +28,14 @@ const corsOptions = {
     optionsSuccessStatus: 204,
     allowedHeaders: 'Origin,X-Requested-With,Content-Type,Accept,Authorization'
 };
-const PORT = 3001;
+const PORT = process.env.PORT || 3001;
+const SESSION_SECRET = process.env.SESSION_SECRET || 'default_secret_key';
+
 app.use(cors(corsOptions));
 app.use(express.json());
 app.use(cookieParser());
 app.use(session({
-    secret: process.env.SESSION_SECRET || 'default_secret_key',
+    secret: SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
     cookie: {
@@ -190,7 +192,7 @@ app.post('/', async (req, res) => {
 });
 
 db.sequelize.sync().then(() => {
-    app.listen(process.env.PORT || 3001, () => {
+    app.listen(PORT, () => {
         console.log(`Server is running on port ${PORT}`);
     });
 });
