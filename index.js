@@ -169,13 +169,12 @@ app.post('/', async (req, res) => {
         userStud = await TeachingAssistants.findOne({ where: { email: email } });
         userTA = await Students.findOne({ where: { email: email } });
         userTeach = await Teachers.findOne({ where: { email: email } });
-        console.log(userStud,userTA,userTeach)
-        if (userTeach && userTeach.length > 0) {
+        if (userTeach) {
             res.status(200).json({ id: "teacher", email: userTeach[0].email });
-        } if (userTA && userTA.length > 0) {
+        } if (userTA) {
             res.status(200).json({ id: "TA", email: userTA[0].email });
         }
-        if (userStud && userStud.length > 0) {
+        if (userStud) {
             res.status(200).json({ id: "student", email: userStud[0].email });
         } if (!(userStud && userTA && userTeach)) {
             res.status(401).json({ loggedIn: false });
