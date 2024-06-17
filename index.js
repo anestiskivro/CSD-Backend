@@ -163,9 +163,9 @@ app.post('/', async (req, res) => {
             res.status(200).json({ email: email });
             return;
         }
-        userStud = await TeachingAssistant.findOne({ where: { email: email } });
-        userTA = await Student.findOne({ where: { email: email } });
-        userTeach = await Teacher.findOne({ where: { email: email } });
+        userStud = await db.TeachingAssistant.findOne({ where: { email: email } });
+        userTA = await db.Student.findOne({ where: { email: email } });
+        userTeach = await db.Teacher.findOne({ where: { email: email } });
         if (userTeach && userTeach.length > 0) {
             res.status(200).json({ id: "teacher", email: userTeach[0].email });
         } else if (userTA && userTA.length > 0) {
