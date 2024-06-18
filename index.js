@@ -51,13 +51,13 @@ app.use(session({
 
 
 const students_router = require("./routes/students");
-app.use("/student", students_router);
+app.use("/student",cors(corsOptions), students_router);
 
 const teacher_router = require("./routes/teacher");
-app.use("/teacher", teacher_router);
+app.use("/teacher",cors(corsOptions), teacher_router);
 
 const t_assistant_router = require("./routes/t_assistants");
-app.use("/tassistant", t_assistant_router);
+app.use("/tassistant",cors(corsOptions), t_assistant_router);
 
 app.post('/logout', (req, res) => {
     if (req.session) {
