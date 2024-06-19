@@ -18,6 +18,13 @@ const transporter = nodemailer.createTransport({
     secure: true,
 });
 
+transporter.verify(function (error, success) {
+    if (error) {
+        console.log(error);
+    } else {
+        console.log('Server is ready to take our messages');
+    }
+});
 
 router.delete("/cancel", async (req, res) => {
     const checkboxes = req.body.checkboxes;
@@ -240,22 +247,29 @@ router.post("/book", async (req, res) => {
                     from: 'uocappointment@gmail.com',
                     to: email,
                     subject: 'Confirmation of your appointment',
-                    text: `Hello ${email}, this is a confirmation email for your slot time ${FromTime} - ${EndTime} at ${date} for ${code[0].code} ${exam[0].name}.`,
+                    text: `Hello ${email}, this is a confirmation email for your slot time ${FromTime} - ${EndTime} at ${date} for ${code[0].code} ${exam[0].name}.`
                 };
+
                 const mailOptionsRemind = {
                     from: 'uocappointment@gmail.com',
                     to: email,
                     subject: 'Reminder of your appointment',
-                    text: `Hello ${email}, this is a reminder email for your slot time ${FromTime} - ${EndTime} at ${date} for ${code[0].code} ${exam[0].name}.`,
+                    text: `Hello ${email}, this is a reminder email for your slot time ${FromTime} - ${EndTime} at ${date} for ${code[0].code} ${exam[0].name}.`
                 };
+
                 transporter.sendMail(mailOptions, (error, info) => {
                     if (error) {
-                        return console.log(error);
+                        return console.log(error); // Log the error for debugging
                     }
-                    result = db.sequelize.query(
+                    console.log('Email sent: ' + info.response); // Log the response for confirmation
+                    db.sequelize.query(
                         'UPDATE availableslots SET Status= ? WHERE slotid = ?', {
                         replacements: ["booked", slotid],
                         type: db.sequelize.QueryTypes.UPDATE
+                    }).then(result => {
+                        console.log('Slot updated successfully');
+                    }).catch(err => {
+                        console.error('Error updating slot:', err);
                     });
                 });
                 const conf_date = new Date(date);
