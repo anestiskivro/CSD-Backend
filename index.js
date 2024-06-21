@@ -151,9 +151,23 @@ app.post('/admin', upload.single('file'), async (req, res) => {
 
 app.get('/', async (req, res) => {
     if (req.session.email) {
-        res.send({ loggedIn: true, email: req.session.email });
-    } else {
-        res.send({ loggedIn: false });
+        if (req.session.email.includes("admin")) {
+            req.session.email = email;
+            res.status(200).json({ id: "admin", email: email });
+            return;
+        }
+        const userStud = await Students.findOne({ where: { email: req.session.email } });
+        const userTA = await TeachingAssistants.findOne({ where: { email: req.session.email } });
+        const userTeach = await Teachers.findOne({ where: { email: req.session.email } });
+        if (userTeach) {
+            res.status(200).json({ id: "teacher", email: userTeach.email });
+        } else if (userTA) {
+            res.status(200).json({ id: "TA", email: userTA.email });
+        } else if (userStud) {
+            res.status(200).json({ id: "student", email: userStud.email });
+        } else {
+            res.status(401).json({ loggedIn: false });
+        }
     }
 });
 
