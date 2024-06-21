@@ -204,26 +204,31 @@ router.get("/getSlots", async (req, res) => {
     }
 });
 router.get("/getTAs", async (req, res) => {
-    const selectedCourse = req.query.selectedCourse;
-    console.log(selectedCourse.length)
+    const selectedCourses = req.query.selectedCourses;
+
+    if (!Array.isArray(selectedCourses) || selectedCourses.length === 0) {
+        return res.status(400).json({ message: "selectedCourses must be a non-empty array" });
+    }
+
     try {
-        const result = await db.sequelize.query(
-            'SELECT * FROM teachingassistants WHERE code = ?',
-            {
-                replacements: [selectedCourse],
-                type: db.sequelize.QueryTypes.SELECT
-            }
-        );
-        if (result) {
+        const placeholders = selectedCourses.map(() => '?').join(', ');
+        const query = `SELECT * FROM teachingassistants WHERE code IN (${placeholders})`;
+
+        const result = await db.sequelize.query(query, {
+            replacements: selectedCourses,
+            type: db.sequelize.QueryTypes.SELECT
+        });
+
+        if (result.length > 0) {
             res.status(200).json({ TAs: result });
         } else {
-            res.status(404).json({ message: "TAs of this course not found" })
+            res.status(404).json({ message: "TAs for these courses not found" });
         }
     } catch (error) {
         console.error('Error:', error);
         res.status(500).json({ error: 'An error occurred while importing data' });
     }
-})
+});
 router.get("/getNotes", async (req, res) => {
     const selectedTA = req.query.teaching_assistant;
     try {
