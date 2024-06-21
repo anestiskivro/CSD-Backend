@@ -204,7 +204,7 @@ router.get("/getSlots", async (req, res) => {
     }
 });
 router.get("/getTAs", async (req, res) => {
-    const selectedCourses = req.query.selectedCourses;
+    const selectedCourses = req.query.selectedCourses.code;
 
     if (!Array.isArray(selectedCourses) || selectedCourses.length === 0) {
         return res.status(400).json({ message: "selectedCourses must be a non-empty array" });
