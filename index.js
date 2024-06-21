@@ -53,13 +53,10 @@ app.use(session({
     resave: false,
     saveUninitialized: false,
     cookie: {
-        secure: true,
-        httpOnly: true,
-        sameSite: 'none',
+        httpOnly: false,
         maxAge: 15000 * 60 * 60 * 24
     }
 }));
-
 const students_router = require("./routes/students");
 app.use("/student", cors(corsOptions), students_router);
 
