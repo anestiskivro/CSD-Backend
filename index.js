@@ -32,11 +32,11 @@ const corsOptions = {
     optionsSuccessStatus: 204,
     allowedHeaders: 'Origin,X-Requested-With,Content-Type,Accept,Authorization,X-Custom-Header,Access-Control-Allow-Origin,Access-Control-Allow-Methods,Access-Control-Allow-Credentials'
 };
+
 const PORT = process.env.PORT || 3001;
 const SESSION_SECRET = process.env.SESSION_SECRET || 'default_secret_key';
 
 app.use(cors(corsOptions));
-
 app.use(express.json());
 app.use(cookieParser());
 app.use(session({
@@ -49,15 +49,14 @@ app.use(session({
     }
 }));
 
-
 const students_router = require("./routes/students");
-app.use("/student",cors(corsOptions), students_router);
+app.use("/student", cors(corsOptions), students_router);
 
 const teacher_router = require("./routes/teacher");
-app.use("/teacher",cors(corsOptions), teacher_router);
+app.use("/teacher", cors(corsOptions), teacher_router);
 
 const t_assistant_router = require("./routes/t_assistants");
-app.use("/tassistant",cors(corsOptions), t_assistant_router);
+app.use("/tassistant", cors(corsOptions), t_assistant_router);
 
 app.post('/logout', (req, res) => {
     if (req.session) {
@@ -150,15 +149,15 @@ app.post('/admin', upload.single('file'), async (req, res) => {
 });
 
 app.get('/', async (req, res) => {
-    if (req.session.email) {
-        if (req.session.email.includes("admin")) {
-            req.session.email = email;
+    const email = req.session.email;
+    if (email) {
+        if (email.includes("admin")) {
             res.status(200).json({ id: "admin", email: email });
             return;
         }
-        const userStud = await Students.findOne({ where: { email: req.session.email } });
-        const userTA = await TeachingAssistants.findOne({ where: { email: req.session.email } });
-        const userTeach = await Teachers.findOne({ where: { email: req.session.email } });
+        const userStud = await Students.findOne({ where: { email: email } });
+        const userTA = await TeachingAssistants.findOne({ where: { email: email } });
+        const userTeach = await Teachers.findOne({ where: { email: email } });
         if (userTeach) {
             res.status(200).json({ id: "teacher", email: userTeach.email });
         } else if (userTA) {
@@ -168,6 +167,8 @@ app.get('/', async (req, res) => {
         } else {
             res.status(401).json({ loggedIn: false });
         }
+    } else {
+        res.status(401).json({ loggedIn: false });
     }
 });
 
@@ -204,4 +205,3 @@ db.sequelize.sync().then(() => {
         console.log(`Server is running on port ${PORT}`);
     });
 });
-
