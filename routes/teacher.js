@@ -205,6 +205,7 @@ router.get("/getSlots", async (req, res) => {
 });
 router.get("/getTAs", async (req, res) => {
     const selectedCourse = req.query.selectedCourse;
+    console.log(selectedCourse.length)
     try {
         const result = await db.sequelize.query(
             'SELECT * FROM teachingassistants WHERE code = ?',
