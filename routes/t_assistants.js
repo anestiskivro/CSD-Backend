@@ -82,6 +82,25 @@ router.get("/getExams", async (req, res) => {
         res.status(500).json({ error: 'An error occurred while querying the database' });
     }
 })
+router.get("/getappointments", async (req, res) => {
+    try {
+        result = await db.sequelize.query(
+            'SELECT * FROM appointments WHERE ',
+            {
+                replacements: [id],
+                type: db.sequelize.QueryTypes.SELECT
+            }
+        );
+        if (result) {
+            res.status(200).json({ appointments: result });
+        } else {
+            res.status(404).json({ error: 'appointments not found' });
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        res.status(500).json({ error: 'An error occurred while querying the database' });
+    }
+})
 
 router.post("/book", async (req, res) => {
     const { dates, hours, cid, eid, email, duration } = req.body;
