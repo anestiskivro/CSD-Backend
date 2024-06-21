@@ -177,7 +177,13 @@ app.post('/', async (req, res) => {
     try {
         if (email.includes("admin")) {
             req.session.email = email;
-            res.status(200).json({ email: email });
+            req.session.save((err) => {
+                if (err) {
+                    console.error('Session save error:', err);
+                    return res.status(500).json({ error: 'Failed to save session' });
+                }
+                res.status(200).json({ email: email });
+            });
             return;
         }
 
@@ -186,11 +192,32 @@ app.post('/', async (req, res) => {
         const userTeach = await Teachers.findOne({ where: { email: email } });
 
         if (userTeach) {
-            res.status(200).json({ id: "teacher", email: userTeach.email });
+            req.session.email = userTeach.email;
+            req.session.save((err) => {
+                if (err) {
+                    console.error('Session save error:', err);
+                    return res.status(500).json({ error: 'Failed to save session' });
+                }
+                res.status(200).json({ id: "teacher", email: userTeach.email });
+            });
         } else if (userTA) {
-            res.status(200).json({ id: "TA", email: userTA.email });
+            req.session.email = userTA.email;
+            req.session.save((err) => {
+                if (err) {
+                    console.error('Session save error:', err);
+                    return res.status(500).json({ error: 'Failed to save session' });
+                }
+                res.status(200).json({ id: "TA", email: userTA.email });
+            });
         } else if (userStud) {
-            res.status(200).json({ id: "student", email: userStud.email });
+            req.session.email = userStud.email;
+            req.session.save((err) => {
+                if (err) {
+                    console.error('Session save error:', err);
+                    return res.status(500).json({ error: 'Failed to save session' });
+                }
+                res.status(200).json({ id: "student", email: userStud.email });
+            });
         } else {
             res.status(401).json({ loggedIn: false });
         }
