@@ -87,7 +87,6 @@ router.get("/getappointments", async (req, res) => {
         result = await db.sequelize.query(
             'SELECT * FROM appointments WHERE ',
             {
-                replacements: [id],
                 type: db.sequelize.QueryTypes.SELECT
             }
         );
