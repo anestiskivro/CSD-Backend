@@ -34,17 +34,28 @@ const corsOptions = {
 };
 
 const PORT = process.env.PORT || 3001;
-const SESSION_SECRET = process.env.SESSION_SECRET || 'default_secret_key';
+// const SESSION_SECRET = process.env.SESSION_SECRET || 'default_secret_key';
 
 app.use(cors(corsOptions));
 app.use(express.json());
 app.use(cookieParser());
+// app.use(session({
+//     secret: SESSION_SECRET,
+//     resave: false,
+//     saveUninitialized: false,
+//     cookie: {
+//         secure: process.env.NODE_ENV === 'production',
+//         maxAge: 15000 * 60 * 60 * 24
+//     }
+// }));
 app.use(session({
-    secret: SESSION_SECRET,
+    secret: 'your-secret-key',
     resave: false,
     saveUninitialized: false,
     cookie: {
-        secure: process.env.NODE_ENV === 'production',
+        secure: true,
+        httpOnly: true,
+        sameSite: 'none',
         maxAge: 15000 * 60 * 60 * 24
     }
 }));
