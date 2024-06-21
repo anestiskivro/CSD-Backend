@@ -285,7 +285,6 @@ router.post("/book", async (req, res) => {
 router.post("/addComment", upload.single('formdata'), async (req, res) => {
     try {
         let { email, comment, code, exam } = req.body;
-        console.log(email, comment, code, exam);
         // Get course ID
         const [cidResult] = await db.sequelize.query('SELECT cid FROM courses WHERE code = ?', {
             replacements: [code],
