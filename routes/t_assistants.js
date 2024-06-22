@@ -5,28 +5,20 @@ const db = require("../models")
 const multer = require('multer');
 const upload = multer({ dest: 'uploads/' });
 
-// const allowedOrigins = [
-//     'https://main--rendezvous-csd.netlify.app',
-//     'https://rendezvous-csd.netlify.app'
-// ];
 
-// const corsOptions = {
-//     origin: function (origin, callback) {
-//         if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
-//             callback(null, true);
-//         } else {
-//             callback(new Error('Not allowed by CORS'));
-//         }
-//     },
-//     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-//     credentials: true,
-//     optionsSuccessStatus: 204,
-//     allowedHeaders: 'Origin,X-Requested-With,Content-Type,Accept,Authorization'
-// };
 const bodyParser = require('body-parser');
 
 router.use(bodyParser.json());
-// router.use(cors(corsOptions));
+const transporter = nodemailer.createTransport({
+    port: 465,
+    host: "smtp.gmail.com",
+    auth: {
+        user: 'uocappointment@gmail.com',
+        pass: 'fwni zden fuzj hybd',
+    },
+    secure: true,
+});
+
 
 router.get("/getStudents", async (req, res) => {
     try {
@@ -183,7 +175,33 @@ router.delete("/cancel", async (req, res) => {
     const checkboxes = req.body.checkboxes;
     try {
         for (let i = 0; i < checkboxes.length; i++) {
-            let result = await db.sequelize.query(
+            if (checkboxes[i].Status === "booked") {
+                let result = await db.sequelize.query(
+                    'SELECT studentId FROM appointments WHERE slotid = ?', {
+                    replacements: [checkboxes[i].slotid],
+                    type: db.sequelize.QueryTypes.SELECT
+                });
+                const stud_id = result[0].studentId
+                result = await db.sequelize.query(
+                    'SELECT email FROM students WHERE id = ?', {
+                    replacements: [stud_id],
+                    type: db.sequelize.QueryTypes.SELECT
+                });
+                const email = result[0].email
+                const mailOptions = {
+                    from: 'uocappointment@gmail.com',
+                    to: email,
+                    subject: 'Cancellation of your appointment',
+                    text: `Hello ${email}, this is a cancelation email for your slot time ${FromTime} - ${EndTime} at ${date} for ${code[0].code} ${exam[0].name}. Please book another slot`,
+                };
+                transporter.sendMail(mailOptions, (error, info) => {
+                    if (error) {
+                        return console.log(error);
+                    }
+                    console.log("Email sent");
+                });
+            }
+            result = await db.sequelize.query(
                 'DELETE FROM availableslots WHERE slotid = ?', {
                 replacements: [checkboxes[i].slotid],
                 type: db.sequelize.QueryTypes.DELETE
