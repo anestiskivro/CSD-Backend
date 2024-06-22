@@ -177,23 +177,33 @@ router.delete("/cancel", async (req, res) => {
     try {
         for (let i = 0; i < checkboxes.length; i++) {
             if (checkboxes[i].Status === "booked") {
-                let result = await db.sequelize.query(
-                    'SELECT studentId FROM appointments WHERE slotid = ?', {
+                let appointment = await db.sequelize.query(
+                    'SELECT * FROM appointments WHERE slotid = ?', {
                     replacements: [checkboxes[i].slotid],
                     type: db.sequelize.QueryTypes.SELECT
                 });
+                const code = await db.sequelize.query('SELECT code FROM courses WHERE cid = ?',
+                    {
+                        replacements: [appointment[0].cid],
+                        type: db.sequelize.QueryTypes.SELECT
+                    });
+                const exam = await db.sequelize.query('SELECT name FROM exams WHERE eid = ?',
+                    {
+                        replacements: [appointment[0].eid],
+                        type: db.sequelize.QueryTypes.SELECT
+                    });
                 const stud_id = result[0].studentId
-                result = await db.sequelize.query(
+                let student_email = await db.sequelize.query(
                     'SELECT email FROM students WHERE id = ?', {
                     replacements: [stud_id],
                     type: db.sequelize.QueryTypes.SELECT
                 });
-                const email = result[0].email
+                const email = student_email[0].email
                 const mailOptions = {
                     from: 'uocappointment@gmail.com',
                     to: email,
                     subject: 'Cancellation of your appointment',
-                    text: `Hello ${email}, this is a cancelation email for your slot time ${FromTime} - ${EndTime} at ${date} for ${code[0].code} ${exam[0].name}. Please book another slot`,
+                    text: `Hello ${email}, this is a cancelation email for your slot time ${appointment[0].FromTime} - ${appointment[0].EndTime} at ${appointment[0].date} for ${code[0].code} ${exam[0].name}. Please book another slot`,
                 };
                 transporter.sendMail(mailOptions, (error, info) => {
                     if (error) {
