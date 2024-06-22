@@ -11,7 +11,7 @@ const bodyParser = require('body-parser');
 
 router.use(bodyParser.json());
 const transporter = nodemailer.createTransport({
-    port: 587,
+    port: 465,
     host: "smtp.gmail.com",
     auth: {
         user: 'uocappointment@gmail.com',
