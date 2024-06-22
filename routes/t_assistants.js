@@ -182,48 +182,60 @@ router.delete("/cancel", async (req, res) => {
                     replacements: [checkboxes[i].slotid],
                     type: db.sequelize.QueryTypes.SELECT
                 });
+
                 const code = await db.sequelize.query('SELECT code FROM courses WHERE cid = ?',
                     {
                         replacements: [appointment[0].cid],
                         type: db.sequelize.QueryTypes.SELECT
                     });
+
                 const exam = await db.sequelize.query('SELECT name FROM exams WHERE eid = ?',
                     {
                         replacements: [appointment[0].eid],
                         type: db.sequelize.QueryTypes.SELECT
                     });
-                const stud_id = result[0].studentId
+
+                const stud_id = appointment[0].studentId;
                 let student_email = await db.sequelize.query(
                     'SELECT email FROM students WHERE id = ?', {
                     replacements: [stud_id],
                     type: db.sequelize.QueryTypes.SELECT
                 });
-                const email = student_email[0].email
+
+                const email = student_email[0].email;
                 const mailOptions = {
                     from: 'uocappointment@gmail.com',
                     to: email,
                     subject: 'Cancellation of your appointment',
-                    text: `Hello ${email}, this is a cancelation email for your slot time ${appointment[0].FromTime} - ${appointment[0].EndTime} at ${appointment[0].date} for ${code[0].code} ${exam[0].name}. Please book another slot`,
+                    text: `Hello ${email}, this is a cancellation email for your slot time ${appointment[0].FromTime} - ${appointment[0].EndTime} at ${appointment[0].date} for ${code[0].code} ${exam[0].name}. Please book another slot`,
                 };
+
                 transporter.sendMail(mailOptions, (error, info) => {
                     if (error) {
                         return console.log(error);
                     }
                     console.log("Email sent");
                 });
+
+                await db.sequelize.query(
+                    'DELETE FROM appointments WHERE slotid = ?', {
+                    replacements: [checkboxes[i].slotid],
+                    type: db.sequelize.QueryTypes.DELETE
+                });
             }
-            result = await db.sequelize.query(
+
+            await db.sequelize.query(
                 'DELETE FROM availableslots WHERE slotid = ?', {
                 replacements: [checkboxes[i].slotid],
                 type: db.sequelize.QueryTypes.DELETE
             });
         }
-        res.status(200).json({ message: 'Data delete successfully' });
+        res.status(200).json({ message: 'Data deleted successfully' });
     } catch (error) {
         console.error('Error:', error);
         res.status(500).json({ error: 'An error occurred while querying the database' });
     }
-})
+});
 router.get("/getSlots", async (req, res) => {
     const email = req.query.email;
     try {
