@@ -4,6 +4,7 @@ const cors = require('cors');
 const db = require("../models")
 const multer = require('multer');
 const upload = multer({ dest: 'uploads/' });
+const nodemailer = require('nodemailer');
 
 
 const bodyParser = require('body-parser');
