@@ -212,7 +212,7 @@ app.post('/', async (req, res) => {
         }
         const token = jwt.sign(user, process.env.JWT_SECRET, { expiresIn: '1d' });
         res.cookie('token', token, { httpOnly: false, secure: false, maxAge: 24 * 60 * 60 * 1000 });
-        res.status(200).json({ message: 'Login successful', token });
+        res.status(200).json({ user, token });
     } catch (err) {
         console.error('Error in login process:', err);
         res.status(500).json({ error: 'An error occurred while processing your request.' });
