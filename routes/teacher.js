@@ -204,31 +204,21 @@ router.get("/getSlots", async (req, res) => {
     }
 });
 router.get("/getTAs", async (req, res) => {
-    const selectedCourses = req.query.selectedCourse;
-    console.log(selectedCourses)
-    if (!Array.isArray(selectedCourses) || selectedCourses.length === 0) {
-        return res.status(400).json({ message: "selectedCourse must be a non-empty array" });
-    }
-    let TAs = [];
+    const selectedCourse = req.query.selectedCourse;
     try {
-        for (let i = 0; i < selectedCourses.length; i++) {
-            const courseCode = selectedCourses[i].code;
-            const result = await db.sequelize.query(
-                'SELECT * FROM teachingassistants WHERE code = ?',
-                {
-                    replacements: [courseCode],
-                    type: db.sequelize.QueryTypes.SELECT
-                }
-            );
-
-            if (result.length > 0) {
-                TAs = TAs.concat(result);
+        const courseCode = selectedCourse.code;
+        const result = await db.sequelize.query(
+            'SELECT * FROM teachingassistants WHERE code = ?',
+            {
+                replacements: [courseCode],
+                type: db.sequelize.QueryTypes.SELECT
             }
-        }
-        if (TAs.length > 0) {
-            res.status(200).json({ TAs: TAs });
+        );
+
+        if (result.length > 0) {
+            res.status(200).json({ TAs: result });
         } else {
-            res.status(404).json({ message: "TAs for these courses not found" });
+            res.status(404).json({ message: "TAs for this course not found" });
         }
     } catch (error) {
         console.error('Error:', error);
