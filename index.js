@@ -53,8 +53,10 @@ app.use(session({
     resave: true,
     saveUninitialized: true,
     cookie: {
+        secure: process.env.NODE_ENV === 'production',
         httpOnly: false,
-        maxAge: 15000 * 60 * 60 * 24
+        maxAge: 15000 * 60 * 60 * 24,
+        sameSite: 'strict'
     }
 }));
 const students_router = require("./routes/students");
