@@ -4,6 +4,7 @@ const xlsToJson = require('xls-to-json');
 const multer = require('multer');
 const upload = multer({ dest: 'uploads/' });
 const { QueryTypes } = require('sequelize');
+const jwt = require('jsonwebtoken');
 const cookieParser = require('cookie-parser');
 const session = require('express-session');
 const app = express();
@@ -45,6 +46,7 @@ app.use(session({
     saveUninitialized: false,
     cookie: {
         httpOnly: false,
+        secure: false,
         maxAge: 15000 * 60 * 60 * 24,
         sameSite: 'strict'
     }
@@ -59,19 +61,31 @@ const t_assistant_router = require("./routes/t_assistants");
 app.use("/tassistant", cors(corsOptions), t_assistant_router);
 
 app.post('/logout', (req, res) => {
-    if (req.session) {
-        req.session.destroy((err) => {
-            if (err) {
-                console.error('Error destroying session:', err);
-                res.status(500).json({ error: 'An error occurred while logging out.' });
-            } else {
-                res.status(200).json({ message: 'Logout successful' });
-            }
-        });
-    } else {
-        res.status(401).json({ message: 'You are not logged in' });
-    }
+    res.clearCookie('token');
+    res.status(200).json({ message: 'Logout successful' });
 });
+
+app.get('/protected', verifyToken, (req, res) => {
+    res.status(200).json({ message: 'You are authorized' });
+});
+
+function verifyToken(req, res, next) {
+    const token = req.cookies.token || '';
+
+    if (!token) {
+        return res.status(401).json({ error: 'Unauthorized: No token provided' });
+    }
+
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        req.user = decoded;
+        next();
+    } catch (err) {
+        console.error('Token verification error:', err);
+        return res.status(403).json({ error: 'Unauthorized: Invalid token' });
+    }
+}
+
 
 app.post('/admin/insertcourses', upload.single('file'), async (req, res) => {
     try {
@@ -175,31 +189,33 @@ app.get('/', async (req, res) => {
     }
 });
 
-app.post('/', async (req, res) => {
-    const email = req.body.email;
+app.post('/login', async (req, res) => {
+    const { email } = req.body;
     try {
+        let user;
         if (email.includes("admin")) {
-            req.session.email = email;
-            res.status(200).json({ id: "admin", email: email });
-            return;
-        }
-
-        const userStud = await Students.findOne({ where: { email: email } });
-        const userTA = await TeachingAssistants.findOne({ where: { email: email } });
-        const userTeach = await Teachers.findOne({ where: { email: email } });
-
-        if (userTeach) {
-            req.session.email = userTeach.email;
-            res.status(200).json({ id: "teacher", email: userTeach.email });
-        } else if (userTA) {
-            req.session.email = userTA.email;
-            res.status(200).json({ id: "TA", email: userTA.email });
-        } else if (userStud) {
-            req.session.email = userStud.email;
-            res.status(200).json({ id: "student", email: userStud.email });
+            user = { id: "admin", email: email };
         } else {
-            res.status(401).json({ loggedIn: false });
+            const userStud = await Students.findOne({ where: { email: email } });
+            const userTA = await TeachingAssistants.findOne({ where: { email: email } });
+            const userTeach = await Teachers.findOne({ where: { email: email } });
+
+            if (userStud) {
+                user = { id: "student", email: userStud.email };
+            } else if (userTA) {
+                user = { id: "TA", email: userTA.email };
+            } else if (userTeach) {
+                user = { id: "teacher", email: userTeach.email };
+            } else {
+                return res.status(401).json({ loggedIn: false });
+            }
         }
+
+        const token = jwt.sign(user, process.env.JWT_SECRET, { expiresIn: '1d' });
+
+        res.cookie('token', token, { httpOnly: true, secure: false, maxAge: 24 * 60 * 60 * 1000 }); // Set token as cookie
+
+        res.status(200).json({ message: 'Login successful', token });
     } catch (err) {
         console.error('Error in login process:', err);
         res.status(500).json({ error: 'An error occurred while processing your request.' });
