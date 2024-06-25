@@ -205,46 +205,49 @@ router.get("/getSlots", async (req, res) => {
 });
 router.get("/getTAs", async (req, res) => {
     const selectedCourses = req.query.selectedCourse;
-    let result;
+    if (!selectedCourses) {
+        return res.status(400).json({ error: 'No courses selected' });
+    }
     let TAs = [];
-    if (selectedCourses.length === 1) {
-        const courseCode = selectedCourses;
-        result = await db.sequelize.query(
-            'SELECT * FROM teachingassistants WHERE code = ?',
-            {
-                replacements: [courseCode],
-                type: db.sequelize.QueryTypes.SELECT
+    try {
+        if (!Array.isArray(selectedCourses)) {
+            const courseCode = selectedCourses;
+            const result = await db.sequelize.query(
+                'SELECT * FROM teachingassistants WHERE code = ?',
+                {
+                    replacements: [courseCode],
+                    type: db.sequelize.QueryTypes.SELECT
+                }
+            );
+            if (result.length > 0) {
+                return res.status(200).json({ TAs: result });
+            } else {
+                return res.status(404).json({ message: "TAs for this course not found" });
             }
-        );
-        if (result.length > 0) {
-            res.status(200).json({ TAs: result });
         } else {
-            res.status(404).json({ message: "TAs for these course not found" });
-        }
-    } else {
-        try {
             for (let i = 0; i < selectedCourses.length; i++) {
                 const courseCode = selectedCourses[i].code;
-                result = await db.sequelize.query(
+                const result = await db.sequelize.query(
                     'SELECT * FROM teachingassistants WHERE code = ?',
                     {
                         replacements: [courseCode],
                         type: db.sequelize.QueryTypes.SELECT
                     }
                 );
+
                 if (result.length > 0) {
                     TAs = TAs.concat(result);
                 }
             }
-        } catch (error) {
-            console.error('Error:', error);
-            res.status(500).json({ error: 'An error occurred while fetching data' });
+            if (TAs.length > 0) {
+                return res.status(200).json({ TAs: TAs });
+            } else {
+                return res.status(404).json({ message: "TAs for these courses not found" });
+            }
         }
-        if (TAs.length > 0) {
-            res.status(200).json({ TAs: TAs });
-        } else {
-            res.status(404).json({ message: "TAs for these courses not found" });
-        }
+    } catch (error) {
+        console.error('Error:', error);
+        return res.status(500).json({ error: 'An error occurred while fetching data' });
     }
 });
 router.get("/getNotes", async (req, res) => {
