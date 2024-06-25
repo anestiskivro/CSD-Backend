@@ -157,6 +157,64 @@ app.post('/admin', upload.single('file'), async (req, res) => {
 });
 
 app.get('/', async (req, res) => {
+    const email = req.body.email;
+try {
+    if (!email) {
+        return res.status(400).json({ error: 'Email is required' });
+    }
+
+    if (email.includes("admin")) {
+        req.session.email = email;
+        return req.session.save((err) => {
+            if (err) {
+                console.error('Session save error:', err);
+                return res.status(500).json({ error: 'Failed to save session' });
+            }
+            res.status(200).json({ id: "admin", email: email });
+        });
+    }
+
+    const userStud = await Students.findOne({ where: { email: email } });
+    const userTA = await TeachingAssistants.findOne({ where: { email: email } });
+    const userTeach = await Teachers.findOne({ where: { email: email } });
+
+    if (userTeach) {
+        req.session.email = userTeach.email;
+        return req.session.save((err) => {
+            if (err) {
+                console.error('Session save error:', err);
+                return res.status(500).json({ error: 'Failed to save session' });
+            }
+            res.status(200).json({ id: "teacher", email: userTeach.email });
+        });
+    } else if (userTA) {
+        req.session.email = userTA.email;
+        return req.session.save((err) => {
+            if (err) {
+                console.error('Session save error:', err);
+                return res.status(500).json({ error: 'Failed to save session' });
+            }
+            res.status(200).json({ id: "TA", email: userTA.email });
+        });
+    } else if (userStud) {
+        req.session.email = userStud.email;
+        return req.session.save((err) => {
+            if (err) {
+                console.error('Session save error:', err);
+                return res.status(500).json({ error: 'Failed to save session' });
+            }
+            res.status(200).json({ id: "student", email: userStud.email });
+        });
+    } else {
+        return res.status(401).json({ loggedIn: false });
+    }
+} catch (err) {
+    console.error('Error in login process:', err);
+    res.status(500).json({ error: 'An error occurred while processing your request.' });
+}
+});
+
+app.post('/', async (req, res) => {
     try {
         const email = req.session.email;
         if (!email) {
@@ -188,63 +246,6 @@ app.get('/', async (req, res) => {
     }
 });
 
-app.post('/', async (req, res) => {
-    const email = req.body.email;
-    try {
-        if (!email) {
-            return res.status(400).json({ error: 'Email is required' });
-        }
-
-        if (email.includes("admin")) {
-            req.session.email = email;
-            return req.session.save((err) => {
-                if (err) {
-                    console.error('Session save error:', err);
-                    return res.status(500).json({ error: 'Failed to save session' });
-                }
-                res.status(200).json({ id: "admin", email: email });
-            });
-        }
-
-        const userStud = await Students.findOne({ where: { email: email } });
-        const userTA = await TeachingAssistants.findOne({ where: { email: email } });
-        const userTeach = await Teachers.findOne({ where: { email: email } });
-
-        if (userTeach) {
-            req.session.email = userTeach.email;
-            return req.session.save((err) => {
-                if (err) {
-                    console.error('Session save error:', err);
-                    return res.status(500).json({ error: 'Failed to save session' });
-                }
-                res.status(200).json({ id: "teacher", email: userTeach.email });
-            });
-        } else if (userTA) {
-            req.session.email = userTA.email;
-            return req.session.save((err) => {
-                if (err) {
-                    console.error('Session save error:', err);
-                    return res.status(500).json({ error: 'Failed to save session' });
-                }
-                res.status(200).json({ id: "TA", email: userTA.email });
-            });
-        } else if (userStud) {
-            req.session.email = userStud.email;
-            return req.session.save((err) => {
-                if (err) {
-                    console.error('Session save error:', err);
-                    return res.status(500).json({ error: 'Failed to save session' });
-                }
-                res.status(200).json({ id: "student", email: userStud.email });
-            });
-        } else {
-            return res.status(401).json({ loggedIn: false });
-        }
-    } catch (err) {
-        console.error('Error in login process:', err);
-        res.status(500).json({ error: 'An error occurred while processing your request.' });
-    }
-});
 db.sequelize.sync().then(() => {
     app.listen(PORT, () => {
         console.log(`Server is running on port ${PORT}`);
