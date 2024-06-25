@@ -12,7 +12,7 @@ const Students = db.Students;
 const TeachingAssistants = db.TeachingAssistant;
 const Teachers = db.Teachers;
 require("dotenv").config();
-
+// mysql://uy4hmtwm04ye45zx:sf575ctffifxejoq@q7cxv1zwcdlw7699.chr7pe7iynqr.eu-west-1.rds.amazonaws.com:3306/zf3pqihq6tayzonu for config.json
 const allowedOrigins = [
     'https://main--rendezvous-csd.netlify.app',
     'https://rendezvous-csd.netlify.app'
