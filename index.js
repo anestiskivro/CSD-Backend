@@ -167,19 +167,32 @@ app.get('/', async (req, res) => {
         if (!email) {
             return res.status(401).json({ loggedIn: false });
         }
-        if (email.includes("admin")) {
-            return res.status(200).json({ id: "admin", email: email });
-        }
-        const userStud = await Students.findOne({ where: { email: email } });
-        const userTA = await TeachingAssistants.findOne({ where: { email: email } });
-        const userTeach = await Teachers.findOne({ where: { email: email } });
 
-        if (userTeach) {
-            return res.status(200).json({ id: "teacher", email: userTeach.email, loggedIn: true });
-        } else if (userTA) {
-            return res.status(200).json({ id: "TA", email: userTA.email, loggedIn: true });
-        } else if (userStud) {
-            return res.status(200).json({ id: "student", email: userStud.email, loggedIn: true });
+        if (email.includes("admin")) {
+            return res.status(200).json({ id: "admin", email: email, loggedIn: true });
+        }
+
+        let user = await Students.findOne({ where: { email: email } });
+
+        if (!user) {
+            user = await TeachingAssistants.findOne({ where: { email: email } });
+        }
+
+        if (!user) {
+            user = await Teachers.findOne({ where: { email: email } });
+        }
+
+        if (user) {
+            let id;
+            if (user instanceof Students) {
+                id = "student";
+            } else if (user instanceof TeachingAssistants) {
+                id = "TA";
+            } else if (user instanceof Teachers) {
+                id = "teacher";
+            }
+
+            return res.status(200).json({ id: id, email: user.email, loggedIn: true });
         } else {
             return res.status(401).json({ loggedIn: false });
         }
