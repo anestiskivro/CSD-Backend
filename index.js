@@ -160,6 +160,7 @@ app.get('/', async (req, res) => {
     const email = req.session.email;
     if (email) {
         if (email.includes("admin")) {
+            res.cookie('connect.sid', req.session.id, { httpOnly: true, secure: true });
             res.status(200).json({ id: "admin", email: email });
             return;
         }
@@ -167,10 +168,13 @@ app.get('/', async (req, res) => {
         const userTA = await TeachingAssistants.findOne({ where: { email: email } });
         const userTeach = await Teachers.findOne({ where: { email: email } });
         if (userTeach) {
+            res.cookie('connect.sid', req.session.id, { httpOnly: true, secure: true });
             res.status(200).json({ id: "teacher", email: userTeach.email });
         } else if (userTA) {
+            res.cookie('connect.sid', req.session.id, { httpOnly: true, secure: true });
             res.status(200).json({ id: "TA", email: userTA.email });
         } else if (userStud) {
+            res.cookie('connect.sid', req.session.id, { httpOnly: true, secure: true });
             res.status(200).json({ id: "student", email: userStud.email });
         } else {
             res.status(401).json({ loggedIn: false });
