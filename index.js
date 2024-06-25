@@ -161,11 +161,11 @@ app.get('/', async (req, res) => {
         const userTeach = await Teachers.findOne({ where: { email: email } });
 
         if (userTeach) {
-            return res.status(200).json({ id: "teacher", email: userTeach.email });
+            return res.status(200).json({ id: "teacher", email: userTeach.email, loggedIn: true });
         } else if (userTA) {
-            return res.status(200).json({ id: "TA", email: userTA.email });
+            return res.status(200).json({ id: "TA", email: userTA.email, loggedIn: true });
         } else if (userStud) {
-            return res.status(200).json({ id: "student", email: userStud.email });
+            return res.status(200).json({ id: "student", email: userStud.email, loggedIn: true });
         } else {
             return res.status(401).json({ loggedIn: false });
         }
