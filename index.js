@@ -182,8 +182,6 @@ app.get('/', async (req, res) => {
         } else if (userStud) {
             res.cookie('connect.sid', req.session.id, { httpOnly: true, secure: true });
             return res.status(200).json({ id: "student", email: userStud.email });
-        } else {
-            return res.status(401).json({ loggedIn: false });
         }
     } catch (error) {
         console.error('Error in authentication:', error);
