@@ -34,7 +34,6 @@ const corsOptions = {
 };
 
 const PORT = process.env.PORT || 3001;
-// const SESSION_SECRET = process.env.SESSION_SECRET || 'default_secret_key';
 
 app.use(cors(corsOptions));
 app.use(express.json());
@@ -42,8 +41,8 @@ app.use(cookieParser());
 
 app.use(session({
     secret: 'your-secret-key',
-    resave: true,
-    saveUninitialized: true,
+    resave: false,
+    saveUninitialized: false,
     cookie: {
         httpOnly: false,
         maxAge: 15000 * 60 * 60 * 24,
@@ -61,7 +60,6 @@ app.use("/tassistant", cors(corsOptions), t_assistant_router);
 
 app.post('/logout', (req, res) => {
     if (req.session) {
-        res.clearCookie('connect.sid');
         req.session.destroy((err) => {
             if (err) {
                 console.error('Error destroying session:', err);
@@ -156,7 +154,6 @@ app.get('/', async (req, res) => {
             return res.status(401).json({ loggedIn: false });
         }
         if (email.includes("admin")) {
-            res.cookie('connect.sid', req.session.id, { httpOnly: false });
             return res.status(200).json({ id: "admin", email: email });
         }
         const userStud = await Students.findOne({ where: { email: email } });
@@ -164,14 +161,13 @@ app.get('/', async (req, res) => {
         const userTeach = await Teachers.findOne({ where: { email: email } });
 
         if (userTeach) {
-            res.cookie('connect.sid', req.session.id, { httpOnly: false });
             return res.status(200).json({ id: "teacher", email: userTeach.email });
         } else if (userTA) {
-            res.cookie('connect.sid', req.session.id, { httpOnly: false });
             return res.status(200).json({ id: "TA", email: userTA.email });
         } else if (userStud) {
-            res.cookie('connect.sid', req.session.id, { httpOnly: false });
             return res.status(200).json({ id: "student", email: userStud.email });
+        } else {
+            return res.status(401).json({ loggedIn: false });
         }
     } catch (error) {
         console.error('Error in authentication:', error);
@@ -184,8 +180,8 @@ app.post('/', async (req, res) => {
     try {
         if (email.includes("admin")) {
             req.session.email = email;
-            res.cookie('connect.sid', req.session.id, { httpOnly: false });
             res.status(200).json({ id: "admin", email: email });
+            return;
         }
 
         const userStud = await Students.findOne({ where: { email: email } });
@@ -194,21 +190,15 @@ app.post('/', async (req, res) => {
 
         if (userTeach) {
             req.session.email = userTeach.email;
-            res.cookie('connect.sid', req.session.id, { httpOnly: false });
             res.status(200).json({ id: "teacher", email: userTeach.email });
-
         } else if (userTA) {
             req.session.email = userTA.email;
-            res.cookie('connect.sid', req.session.id, { httpOnly: false });
             res.status(200).json({ id: "TA", email: userTA.email });
-
         } else if (userStud) {
             req.session.email = userStud.email;
-            res.cookie('connect.sid', req.session.id, { httpOnly: false });
             res.status(200).json({ id: "student", email: userStud.email });
-
         } else {
-            return res.status(401).json({ loggedIn: false });
+            res.status(401).json({ loggedIn: false });
         }
     } catch (err) {
         console.error('Error in login process:', err);
