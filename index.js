@@ -210,7 +210,7 @@ app.post('/', async (req, res) => {
                 return res.status(401).json({ loggedIn: false });
             }
         }
-        const token = jwt.sign(user, process.env.JWT_SECRET, { expiresIn: '1d' });
+        const token = jwt.sign(user, process.env.JWT_SECRET, { expiresIn: '14d' });
         res.cookie('token', token, { httpOnly: false, secure: false, maxAge: 24 * 60 * 60 * 1000 });
         res.status(200).json({ user, token });
     } catch (err) {
