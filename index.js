@@ -70,12 +70,12 @@ app.use("/tassistant", cors(corsOptions), t_assistant_router);
 
 app.post('/logout', (req, res) => {
     if (req.session) {
+        res.clearCookie('connect.sid');
         req.session.destroy((err) => {
             if (err) {
                 console.error('Error destroying session:', err);
                 res.status(500).json({ error: 'An error occurred while logging out.' });
             } else {
-                res.clearCookie('connect.sid');
                 res.status(200).json({ message: 'Logout successful' });
             }
         });
