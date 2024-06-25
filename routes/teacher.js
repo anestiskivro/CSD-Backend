@@ -207,7 +207,7 @@ router.get("/getTAs", async (req, res) => {
     const selectedCourses = req.query.selectedCourse;
     let result;
     let TAs = [];
-    if (selectedCourses.length === 0) {
+    if (selectedCourses.length === 1) {
         const courseCode = selectedCourses;
         result = await db.sequelize.query(
             'SELECT * FROM teachingassistants WHERE code = ?',
