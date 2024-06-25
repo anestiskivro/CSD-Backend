@@ -159,9 +159,6 @@ app.post('/admin', upload.single('file'), async (req, res) => {
 app.get('/', async (req, res) => {
     try {
         const email = req.session.email;
-        if (!email) {
-            return res.status(401).json({ loggedIn: false });
-        }
         if (email.includes("admin")) {
             res.cookie('connect.sid', req.session.id, { httpOnly: false });
             return res.status(200).json({ id: "admin", email: email });
@@ -189,10 +186,6 @@ app.get('/', async (req, res) => {
 app.post('/', async (req, res) => {
     const email = req.body.email;
     try {
-        if (!email) {
-            return res.status(400).json({ error: 'Email is required' });
-        }
-
         if (email.includes("admin")) {
             req.session.email = email;
             res.cookie('connect.sid', req.session.id, { httpOnly: false });
