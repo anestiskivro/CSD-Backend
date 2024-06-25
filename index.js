@@ -189,7 +189,7 @@ app.get('/', async (req, res) => {
     }
 });
 
-app.post('/login', async (req, res) => {
+app.post('/', async (req, res) => {
     const { email } = req.body;
     try {
         let user;
@@ -210,11 +210,8 @@ app.post('/login', async (req, res) => {
                 return res.status(401).json({ loggedIn: false });
             }
         }
-
         const token = jwt.sign(user, process.env.JWT_SECRET, { expiresIn: '1d' });
-
-        res.cookie('token', token, { httpOnly: true, secure: false, maxAge: 24 * 60 * 60 * 1000 }); // Set token as cookie
-
+        res.cookie('token', token, { httpOnly: false, secure: false, maxAge: 24 * 60 * 60 * 1000 });
         res.status(200).json({ message: 'Login successful', token });
     } catch (err) {
         console.error('Error in login process:', err);
