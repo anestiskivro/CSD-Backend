@@ -206,11 +206,10 @@ router.get("/getSlots", async (req, res) => {
 router.get("/getTAs", async (req, res) => {
     const selectedCourse = req.query.selectedCourse;
     try {
-        const courseCode = selectedCourse.code;
         const result = await db.sequelize.query(
             'SELECT * FROM teachingassistants WHERE code = ?',
             {
-                replacements: [courseCode],
+                replacements: [selectedCourse],
                 type: db.sequelize.QueryTypes.SELECT
             }
         );
