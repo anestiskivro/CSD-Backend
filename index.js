@@ -51,10 +51,10 @@ app.use(cookieParser());
 app.use(session({
     secret: 'your-secret-key',
     resave: false,
-    saveUninitialized: false,
+    saveUninitialized: true,
     cookie: {
         httpOnly: true,
-        secure: true,
+        secure: process.env.NODE_ENV === 'production',
         maxAge: 15000 * 60 * 60 * 24
     }
 }));
